@@ -1,10 +1,14 @@
 type AddItemProps = {
     title: string;
+    viewMode?: "disciplinas" | "assuntos" | "questoes";
+    onAdd?: () => void;
 }
 
-export default function EditPanel({ title }: AddItemProps) {
+export default function AddItem({ title, viewMode, onAdd }: AddItemProps) {
     return (
-        <div className="flex items-center justify-between border border-dashed border-gray-400 rounded-lg p-4 shadow-sm bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+        <div className="flex items-center justify-between border border-dashed border-gray-400 rounded-lg p-4 shadow-sm bg-gray-50 hover:bg-gray-100 transition cursor-pointer"
+        onClick={onAdd}
+        >
             <span className="text-gray-600 font-medium">Adicionar novo item</span>
             <button className="text-blue-600 hover:text-blue-800">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

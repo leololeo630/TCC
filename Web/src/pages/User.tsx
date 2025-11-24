@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Search } from "lucide-react"; // npm i lucide-react
 import  ListItem from "../components/user/ListItem";
-
+import { useNavigate } from "react-router-dom";
 
 export default function User() {
+    const navigate = useNavigate();
     const [search, setSearch] = useState("");
 
     const items = [
@@ -48,7 +49,8 @@ export default function User() {
                 {/* Lista */}
                 <div className="flex flex-col gap-4 w-full">
                   {filteredItems.map((item) => (
-                      <ListItem key={item.id} desc={item.desc} disciplina={item.disciplina} assunto={item.assunto} dificuldade={item.dificuldade}/>
+                      <ListItem key={item.id} desc={item.desc} disciplina={item.disciplina} assunto={item.assunto} dificuldade={item.dificuldade}
+                      onClick={() => {navigate(`/questao/${item.id}`)}}/>
                   ))}
                 </div>
             </div>
