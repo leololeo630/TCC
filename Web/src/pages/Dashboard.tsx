@@ -5,8 +5,9 @@ export default function Dashboard() {
     ChartJS.register(ArcElement, Tooltip, Legend);
     //VARIÁVEIS DE ESTADO
     const [selectedDisciplina, setSelectedDisciplina] = useState<number | null>(null);
+    const [selectedAssunto, setSelectedAssunto] = useState<number | null>(null);
     const [nivel, setNivel] = useState<'Disciplina' | 'Assunto'>('Disciplina');
-
+    const [selectedResultado, setSelectedResultado] = useState<'acertos' | 'erros' | null>(null);
     
     //FORMATO DOS DADOS DO GRÁFICOS (DEVE VIR DA API ASSIM)
     const data = [
@@ -42,8 +43,18 @@ export default function Dashboard() {
     //Dados de valores para o Gráfico de Disciplina/Assunto
     const chart1Values =
     nivel === 'Disciplina'
-    ? data.map((d) => d.assuntos.reduce((sum, a) => sum + a.acertos + a.erros, 0))
-    : data[selectedDisciplina ?? 0]?.assuntos.map((a) => a.acertos + a.erros) || [];
+    ? data.map((d) =>
+        d.assuntos.reduce((sum, a) => {
+          if (!selectedResultado) return sum + a.acertos + a.erros;
+          if (selectedResultado === 'acertos') return sum + a.acertos;
+          if (selectedResultado === 'erros') return sum + a.erros;
+        }, 0)
+      )
+    : data[selectedDisciplina ?? 0]?.assuntos.map((a) => {
+        if (!selectedResultado) return a.acertos + a.erros;
+        if (selectedResultado === 'acertos') return a.acertos;
+        if (selectedResultado === 'erros') return a.erros;
+      }) || [];
 
     //Dados do Gráfico de Disciplina/Assunto
     const chart1Data = {
@@ -64,6 +75,23 @@ export default function Dashboard() {
         ]
     }
 
+    //Lógica para clicar no gráfico de Disciplina/Assunto
+    const handleChart1Click = (_: any, elements: any) => {
+        console.log('clicou', elements.type);
+        setSelectedResultado(null);
+        if (!elements.length) return;
+        const index = elements[0].index;
+        console.log('teste3: ', chart2Values);
+        if (nivel === 'Disciplina') {
+            setSelectedDisciplina(index);
+            setNivel('Assunto');
+        }else {
+            setSelectedAssunto(index);
+            console.log('assunto selecionado:', index)
+        }
+        
+    }
+
     //Valores para o Gráfico de Acertos/Erros
     const chart2Values =
     nivel === 'Disciplina'
@@ -73,12 +101,19 @@ export default function Dashboard() {
         return [acertos, erros];
     })()
     : (() => {
-        const assuntos = data[selectedDisciplina ?? 0]?.assuntos || [];
-        const acertos = assuntos.reduce((sum, a) => sum + a.acertos, 0);
-        const erros = assuntos.reduce((sum, a) => sum + a.erros, 0);
-        return [acertos, erros];
+        if(selectedAssunto == null || selectedAssunto === undefined){
+            const assuntos = data[selectedDisciplina ?? 0]?.assuntos || [];
+            const acertos = assuntos.reduce((sum, a) => sum + a.acertos, 0);
+            const erros = assuntos.reduce((sum, a) => sum + a.erros, 0);
+            return [acertos, erros];
+        }else{
+            const assunto = data[selectedDisciplina ?? 0]?.assuntos[selectedAssunto];
+            return [assunto.acertos, assunto.erros];
+        }
     })();
     console.log('valores2', chart2Values);
+
+
     //Dados do Gráfico de Acertos/Erros
     const chart2Data = {
         labels: ['Acertos', 'Erros'],
@@ -90,17 +125,15 @@ export default function Dashboard() {
         ]
     }
 
-    //Lógica para clicar no gráfico de Disciplina/Assunto
-    const handleChart1Click = (_: any, elements: any) => {
-        console.log('clicou', elements.type);
+    //lógica de clique no gráfico acertos/erros
+    const handleChart2Click = (_: any, elements: any) => {
         if (!elements.length) return;
         const index = elements[0].index;
-        console.log('teste3: ', chart2Values);
-        if (nivel === 'Disciplina') {
-            setSelectedDisciplina(index);
-            setNivel('Assunto');
-        }
-    }
+        console.log('clicou no gráfico 2, índice:', index);
+        setSelectedResultado(index === 0 ? 'acertos' : 'erros');
+    }    
+
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
@@ -126,6 +159,9 @@ export default function Dashboard() {
         <div className="w-96 h-96 bg-gray-100 rounded-lg shadow-md flex items-center justify-center">
           <Doughnut
             data={chart2Data}
+            options={
+                {onClick: handleChart2Click}
+            }
           />
         </div>
       </div>

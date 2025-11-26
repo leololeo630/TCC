@@ -132,6 +132,7 @@ export default function Admin() {
             
             <AddItem 
               onAdd={() => {
+                setSelectedEditItem(null)
                 console.log("Adicionar novo item em", viewMode);
                 setIsEditOpen(true)
               }}

@@ -54,7 +54,7 @@ export default function Questao() {
               {respostas.map((resposta) => (
                 <div
                   key={resposta.id}
-                  className="border border-gray-300 rounded-lg shadow-sm px-4 py-3 w-full"
+                  className="border border-gray-300 rounded-lg shadow-sm px-4 py-3 w-full hover:bg-gray-100 transition cursor-pointer"
                 >
                   {resposta.text}
                 </div>
@@ -64,7 +64,7 @@ export default function Questao() {
         </div>
 
         {/* Seta direita */}
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black">
+        <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition cursor-pointer">
           <ChevronRight size={36} />
         </button>
       </div>
