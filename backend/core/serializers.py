@@ -20,10 +20,7 @@ class AssuntoSerializer(serializers.ModelSerializer):
 
 
 class AlternativaSerializer(serializers.ModelSerializer):
-    questao = serializers.PrimaryKeyRelatedField(
-        queryset=Questao.objects.all(),
-        write_only=True
-        )
+
     
     class Meta:
         model = Alternativa

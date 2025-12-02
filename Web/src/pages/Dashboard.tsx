@@ -127,6 +127,7 @@ export default function Dashboard() {
 
     //lógica de clique no gráfico acertos/erros
     const handleChart2Click = (_: any, elements: any) => {
+        setSelectedAssunto(null)
         if (!elements.length) return;
         const index = elements[0].index;
         console.log('clicou no gráfico 2, índice:', index);

@@ -29,7 +29,7 @@ from core.views import (
 router = DefaultRouter()
 router.register(r'disciplina', DisciplinaViewSet)
 router.register(r'assunto', AssuntoViewSet)
-router.register(r'questoe', QuestaoViewSet)
+router.register(r'questoes', QuestaoViewSet)
 router.register(r'alternativa', AlternativaViewSet)
 router.register(r'historico', HistoricoViewSet)
 
