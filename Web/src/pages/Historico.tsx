@@ -89,8 +89,12 @@ export default function User() {
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <nav className="bg-blue-600 text-white w-full p-4 flex justify-between items-center">
-        <div className="font-semibold">User</div>
-        <div className="text-lg font-bold">Vestibular</div>
+        <div className="font-semibold cursor-pointer" onClick={() => navigate("/user")}>User</div>
+        <div className="text-lg font-bold text-center absolute left-1/2 transform -translate-x-1/2">Vestibular</div>
+        <div className='text-white w-full p-4 flex justify-between items-center'>
+            <div className='font-semibold cursor-pointer' onClick={() => navigate("/historico")}>Histórico</div>
+            <div className='font-semibold cursor-pointer' onClick={() => navigate("/dashboard")}>Dashboard</div>
+        </div>
         <div className="w-20" /> {/* espaçamento p/ alinhar */}
       </nav>
      {/* Conteúdo principal */}

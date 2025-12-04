@@ -3,6 +3,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useState } from 'react';
 import { getDesempenhoUsuario } from '../services/desempenhoService';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 export default function Dashboard() {
     ChartJS.register(ArcElement, Tooltip, Legend);
     //VARIÁVEIS DE ESTADO
@@ -11,6 +12,7 @@ export default function Dashboard() {
     const [nivel, setNivel] = useState<'Disciplina' | 'Assunto'>('Disciplina');
     const [selectedResultado, setSelectedResultado] = useState<'acertos' | 'erros' | null>(null);
     const [data, setData] = useState<any[]>([]);
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchDesempenho = async () => {
             const desempenhoData = await getDesempenho();
@@ -161,8 +163,12 @@ export default function Dashboard() {
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <nav className="bg-blue-600 text-white w-full p-4 flex justify-between items-center">
-        <div className="font-semibold">User</div>
-        <div className="text-lg font-bold">Vestibular</div>
+        <div className="font-semibold cursor-pointer" onClick={() => navigate("/user")}>User</div>
+        <div className="text-lg font-bold text-center absolute left-1/2 transform -translate-x-1/2">Vestibular</div>
+        <div className='text-white w-full p-4 flex justify-between items-center'>
+            <div className='font-semibold cursor-pointer' onClick={() => navigate("/historico")}>Histórico</div>
+            <div className='font-semibold cursor-pointer' onClick={() => navigate("/dashboard")}>Dashboard</div>
+        </div>
         <div className="w-20" /> {/* espaçamento p/ alinhar */}
       </nav>
 

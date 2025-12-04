@@ -24,6 +24,7 @@ interface EditModalProps {
   parentId?: number;
   onClose: () => void;
   onCancel: () => void;
+  onRefresh?: () => void;
 }
 
 export default function EditModal({
@@ -35,6 +36,7 @@ export default function EditModal({
   parentId,
   onClose,
   onCancel,
+  onRefresh
 }: EditModalProps) {
   const [inputValue, setInputValue] = useState(title ?? "");
   const [dificuldade, setDificuldade] = useState("facil");
@@ -78,6 +80,7 @@ export default function EditModal({
           };
           const result = await updateDisciplina(updated);
           console.log('Disciplina atualizada: ', result);
+          onRefresh?.();
         }catch(err){
           console.error("Erro ao atualizar disciplina:", err);
         }
@@ -90,6 +93,7 @@ export default function EditModal({
         }
           console.log('Assunto para atualizar: ', updated);
           const result = await updateAssunto(updated);
+          onRefresh?.();
           console.log('Assunto atualizado: ', result);
         }catch(err){
           console.error("Erro ao atualizar assunto:", err);
@@ -133,6 +137,7 @@ export default function EditModal({
         }catch(err){
           console.error("Erro ao atualizar questão:", err);
         }
+        onRefresh?.();
       }
     }else{
       if(viewMode === "disciplinas"){
@@ -142,6 +147,7 @@ export default function EditModal({
         try{
           const created = await createDisciplina(newDisciplina as Disciplina);
           console.log('Disciplina criada: ', created);
+          onRefresh?.();
         }catch(err){
           console.error("Erro ao criar disciplina:", err);
         }
@@ -158,6 +164,7 @@ export default function EditModal({
       };
       try{
         const created = await createAssunto(newAssunto as AssuntoCreate);
+        onRefresh?.();
         console.log('Assunto criado: ', created);
       }catch(err){
         console.error("Erro ao criar assunto:", err);
@@ -195,8 +202,10 @@ export default function EditModal({
           }catch(err){
             console.error("Erro ao criar alternativa:", err);
           }
+          
         });
       }
+      onRefresh?.();
     }
   }
 }

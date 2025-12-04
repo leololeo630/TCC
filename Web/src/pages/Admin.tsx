@@ -193,6 +193,11 @@ export default function Admin() {
                 onClose={() => setIsEditOpen(false)}
                 onCancel={() => setIsEditOpen(false)}
                 parentId={selectedItem?.id}
+                onRefresh={() => {
+                  if(viewMode === "disciplinas") fetchDisciplinas();
+                  else if(viewMode === "assuntos") fetchAssuntos();
+                  else if(viewMode === "questoes") fetchQuestoes();
+              }}
             />
             )}
           </div>
