@@ -1,20 +1,41 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { Search } from "lucide-react"; // npm i lucide-react
 import  ListItem from "../components/user/ListItem";
 import { useNavigate } from "react-router-dom";
-
+import { getAllQuestoes } from "../services/questaoService";
+import { useEffect } from "react";
+import type { Questao } from "../types/Questao";
 export default function User() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
-
-    const items = [
-        { id: 1, desc: "Prova de Matemática", disciplina: "Matemática", assunto: "Álgebra", dificuldade: "Médio" },
-        { id: 2, desc: "Prova de Português", disciplina: "Português", assunto: "Gramática", dificuldade: "Fácil" },
-        { id: 3, desc: "Prova de Redação", disciplina: "Redação", assunto: "Argumentação", dificuldade: "Difícil" },
-    ];
-    const filteredItems = items.filter((item) =>
-        item.desc.toLowerCase().includes(search.toLowerCase())
-    );  
+    const [data, setData] = useState<Questao[]>([]);
+    useEffect(() => {
+      getQuestoes();
+    }, []);
+    const getQuestoes = async () => {
+      try {
+          const response = await getAllQuestoes();
+          setData(response);
+          console.log('Questoes: ', response);
+          //console.log('id: ', data[0].id, ' texto: ', data[0].texto, ' dificuldade: ', data[0].dificuldade, ' assunto: ', data[0].assunto.nome, ' disciplina: ', data[0].assunto.disciplina.nome);
+      }catch(err){
+          console.error("Erro ao buscar questões:", err);
+      }
+    }
+     
+    const byTexto = data.filter(item =>
+        item.texto.toLowerCase().includes(search.toLowerCase())
+    );
+    const byAssunto = data.filter(item =>
+        item.assunto.nome.toLowerCase().includes(search.toLowerCase())
+    );
+    const byDisciplina = data.filter(item =>
+        item.assunto.disciplina.nome.toLowerCase().includes(search.toLowerCase())
+    );
+    const filteredItems =
+      byTexto.length > 0 ? byTexto :
+      byAssunto.length > 0 ? byAssunto :
+      byDisciplina;
     return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
@@ -49,7 +70,7 @@ export default function User() {
                 {/* Lista */}
                 <div className="flex flex-col gap-4 w-full">
                   {filteredItems.map((item) => (
-                      <ListItem key={item.id} desc={item.desc} disciplina={item.disciplina} assunto={item.assunto} dificuldade={item.dificuldade}
+                      <ListItem key={item.id} desc={item.texto} disciplina={item.assunto.disciplina.nome} assunto={item.assunto.nome} dificuldade={item.dificuldade}
                       onClick={() => {navigate(`/questao/${item.id}`)}}/>
                   ))}
                 </div>

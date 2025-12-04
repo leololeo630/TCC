@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import Input from '../components/login/Input';
 import Button from '../components/login/Button';
+import { login } from '../services/login';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Logging in with', { username, password });
+        try {
+            const response = await login(username, password);
+            localStorage.setItem('authToken', response.access);
+            localStorage.setItem('refreshToken', response.refresh);
 
-        //Redireciona para a página principal após o login
+            navigate('/user');
+        }
+        catch (error) {
+            console.error('Login failed:', error);
+        }
 
     }
 

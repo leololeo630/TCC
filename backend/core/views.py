@@ -7,6 +7,9 @@ from .serializers import (
     AlternativaSerializer, HistoricoSerializer
 )
 from .permissions import IsAdminOrReadyOnly, IsOwnerOrAdmin
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 class DisciplinaViewSet(ModelViewSet):
     queryset = Disciplina.objects.all()
@@ -22,6 +25,62 @@ class QuestaoViewSet(ModelViewSet):
     queryset = Questao.objects.all()
     serializer_class = QuestaoSerializer
     permission_classes = [IsAdminOrReadyOnly]
+    @action(detail=False, methods=['get'], url_path='next')
+    def next(self, request):
+        last_id = request.query_params.get('last_id')
+        if not last_id:
+            return Response({"detail": "last_id parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try: 
+            atual_questao = Questao.objects.get(id=last_id)
+        except Questao.DoesNotExist:
+            return Response({"detail": "Questao not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        user = request.user.profile
+        questoes_respondidas = Historico.objects.filter(user=user).values_list('questao_id', flat=True)
+
+        questao = (
+            Questao.objects
+            .filter(assunto=atual_questao.assunto, dificuldade=atual_questao.dificuldade)
+            .exclude(id__in=questoes_respondidas)
+            .exclude(id=atual_questao.id)
+            .order_by('id')
+            .first()
+        )
+        if questao:
+            serializer = self.get_serializer(questao)
+            return Response(serializer.data)
+        
+        questao = (
+            Questao.objects
+            .filter(assunto=atual_questao.assunto)
+            .exclude(id__in=questoes_respondidas)
+            .exclude(id=atual_questao.id)
+            .order_by('id')
+            .first()
+        )
+        if questao:
+            serializer = self.get_serializer(questao)
+            return Response(serializer.data)
+        
+        questao = (
+            Questao.objects
+            .filter(assunto__disciplina=atual_questao.assunto.disciplina)
+            .exclude(id__in=questoes_respondidas)
+            .exclude(id=atual_questao.id)
+            .order_by('id')
+            .first()
+        )
+        if questao:
+            serializer = self.get_serializer(questao)
+            return Response(serializer.data)
+        
+        questao = (
+            Questao.objects
+            .exclude(id=atual_questao.id)
+            .order_by('id')
+            .first()
+        ) 
+        return Response(self.get_serializer(questao).data) if questao else Response({"detail": "No more questions available."}, status=status.HTTP_404_NOT_FOUND)
 
 class AlternativaViewSet(ModelViewSet):
     queryset = Alternativa.objects.all()
