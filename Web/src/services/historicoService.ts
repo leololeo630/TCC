@@ -11,3 +11,12 @@ export async function addHistorico(historico: Omit<CreateHistorico, "id">): Prom
         throw error;
     }
 }
+export async function getHistorico(): Promise<Historico[]> {
+    try {
+        const response = await api.get("historico/");
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar histórico:", error);
+        throw error;
+    }
+}

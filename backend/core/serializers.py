@@ -24,7 +24,7 @@ class AlternativaSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Alternativa
-        fields = ['id', 'texto', 'is_correct']
+        fields = ['id', 'questao', 'texto', 'is_correct']
 
 class QuestaoSerializer(serializers.ModelSerializer):
     assunto = serializers.PrimaryKeyRelatedField(queryset=Assunto.objects.all())

@@ -1,6 +1,8 @@
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useState } from 'react';
+import { getDesempenhoUsuario } from '../services/desempenhoService';
+import { useEffect } from 'react';
 export default function Dashboard() {
     ChartJS.register(ArcElement, Tooltip, Legend);
     //VARIÁVEIS DE ESTADO
@@ -8,9 +10,16 @@ export default function Dashboard() {
     const [selectedAssunto, setSelectedAssunto] = useState<number | null>(null);
     const [nivel, setNivel] = useState<'Disciplina' | 'Assunto'>('Disciplina');
     const [selectedResultado, setSelectedResultado] = useState<'acertos' | 'erros' | null>(null);
-    
+    const [data, setData] = useState<any[]>([]);
+    useEffect(() => {
+        const fetchDesempenho = async () => {
+            const desempenhoData = await getDesempenho();
+            setData(desempenhoData);
+        };
+        fetchDesempenho();
+    },[]);
     //FORMATO DOS DADOS DO GRÁFICOS (DEVE VIR DA API ASSIM)
-    const data = [
+    /*const data = [
     {
         disciplina: 'Matemática',
         assuntos: [
@@ -32,7 +41,20 @@ export default function Dashboard() {
             { nome: 'Brasil Império', acertos: 15, erros: 20 },
         ],
     },
-    ];
+    ];*/
+    const getDesempenho = async () => {
+        let desempenhoData;
+        try {
+            desempenhoData = await getDesempenhoUsuario();
+            console.log('desempenhoData:', desempenhoData);
+            console.log('data:', data);
+            return desempenhoData;
+        } catch (error) {
+            console.error("Erro ao obter desempenho do usuário:", error);
+            return [];
+        }
+        
+    }
 
     //Labels para o Gráfico de Disciplina/Assunto 
     const chart1Labels = 

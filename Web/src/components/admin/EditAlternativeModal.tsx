@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-
+import type { AlternativaCreate } from "../../types/Alternativa";
+import type { Alternativa } from "../../types/Alternativa";
 interface Alternativa {
     id?: number;
     texto: string;
@@ -11,16 +12,20 @@ interface EditAlternativeModalProps {
     isOpen: boolean;
     onClose: () => void;
     onCancel: () => void;
+    onSave?: (lista: Alternativa[]) => void;
 }
 export function EditAlternativeModal ({
     listaAlternativas,
     isOpen,
     onClose,
     onCancel,
+    onSave,
 }: EditAlternativeModalProps) {
     
     const [alternativas, setAlternativas] = useState<Alternativa[]>(listaAlternativas);
-
+    useEffect(() => {
+        setAlternativas(listaAlternativas ?? []);
+    }, [listaAlternativas]);
     const addAlternative = () => {
         setAlternativas(prev => [...prev, { texto: "", isCorrect: false }]);
     };
@@ -101,6 +106,9 @@ export function EditAlternativeModal ({
           <button
             onClick={() => {
             console.log("Salvar alternativas:", alternativas); // futuramente isso vai pro backend
+            if(onSave){
+                onSave(alternativas);
+            }
             onClose();
           }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

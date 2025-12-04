@@ -10,6 +10,8 @@ from .permissions import IsAdminOrReadyOnly, IsOwnerOrAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+
 
 class DisciplinaViewSet(ModelViewSet):
     queryset = Disciplina.objects.all()
@@ -97,7 +99,7 @@ class HistoricoViewSet(ModelViewSet):
         profile = getattr(user, 'profile', None)
 
         if profile and profile.role == 'admin':
-            return Historico.objects.all()
+            return Historico.objects.filter(user=profile)
         
         return Historico.objects.filter(user=profile)
 
@@ -108,3 +110,47 @@ class HistoricoViewSet(ModelViewSet):
             serializer.save()
         else:
             serializer.save(user=profile)
+
+# views.py
+@api_view(['GET'])
+@permission_classes([IsOwnerOrAdmin])
+def desempenho_usuario(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+    # Filtra histórico do usuário
+    historico = Historico.objects.filter(user=profile)
+
+    # Dicionário para organizar os dados
+    resultado = {}
+
+    for h in historico.select_related('questao__assunto__disciplina'):
+        disciplina = h.questao.assunto.disciplina
+        assunto = h.questao.assunto
+
+        if disciplina.nome not in resultado:
+            resultado[disciplina.nome] = {}
+
+        if assunto.nome not in resultado[disciplina.nome]:
+            resultado[disciplina.nome][assunto.nome] = {"acertos": 0, "erros": 0}
+
+        if h.resolvida:
+            resultado[disciplina.nome][assunto.nome]["acertos"] += 1
+        else:
+            resultado[disciplina.nome][assunto.nome]["erros"] += 1
+
+    # Transformar em lista no formato que você quer
+    data = []
+    for disc_name, assuntos_dict in resultado.items():
+        assuntos_list = []
+        for assunto_name, valores in assuntos_dict.items():
+            assuntos_list.append({
+                "nome": assunto_name,
+                "acertos": valores["acertos"],
+                "erros": valores["erros"]
+            })
+        data.append({
+            "disciplina": disc_name,
+            "assuntos": assuntos_list
+        })
+
+    return Response(data)

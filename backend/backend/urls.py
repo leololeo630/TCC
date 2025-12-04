@@ -23,7 +23,7 @@ from accounts.views import CustomTokenObtainPairView
 from core.views import (
     DisciplinaViewSet, AssuntoViewSet,
     QuestaoViewSet, AlternativaViewSet,
-    HistoricoViewSet
+    HistoricoViewSet, desempenho_usuario
 )
 
 router = DefaultRouter()
@@ -35,6 +35,7 @@ router.register(r'historico', HistoricoViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/desempenho/', desempenho_usuario, name='desempenho_usuario'),
     path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),

@@ -8,3 +8,14 @@ export interface Questao {
   assunto: Assunto;
   alternativas: Alternativa[];
 }
+export interface QuestaoCreate {
+  texto: string;
+  dificuldade: string;
+  assunto: number;
+}
+export interface QuestaoUpdate {
+  id: number;
+  texto: string;
+  dificuldade: string;
+  assunto: number;
+}

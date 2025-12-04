@@ -1,18 +1,57 @@
 import { useState } from "react";
-import { Search } from "lucide-react"; // npm i lucide-react
+import { Search, ArrowLeft } from "lucide-react"; // npm i lucide-react
 import  ListItem from "../components/admin/ListItem";
 import AddItem from "../components/admin/AddItem";
 import EditModal from "../components/admin/EditModal";
-
+import { getAllDisciplinas } from "../services/disciplinaService";
+import {getAllAssuntos} from "../services/assuntoService";
+import {getAllQuestoes} from "../services/questaoService";
+import { useEffect } from "react";
+import type { Disciplina } from "../types/Disciplina";
+import type { Assunto } from "../types/Assunto";
+import type { Questao } from "../types/Questao";
 export default function Admin() {
   const [search, setSearch] = useState("");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedEditItem, setSelectedEditItem] = useState<{ id: number; title: string } | null>(null);
   const [selectedItem, setSelectedItem] = useState<{ id: number;} | null>(null);
   const [viewMode, setViewMode] = useState<"disciplinas" | "assuntos" | "questoes">("disciplinas");
+  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+  const [assuntos, setAssuntos] = useState<Assunto[]>([]);
+  const [questoes, setQuestoes] = useState<Questao[]>([]);
+  useEffect(() => {
+    fetchDisciplinas();
+    fetchAssuntos();
+    fetchQuestoes();
+  }, []);
+
+  const fetchDisciplinas = async () => {
+    try {
+      const data = await getAllDisciplinas();
+      setDisciplinas(data);
+    } catch (error) {
+      console.error("Erro ao buscar disciplinas:", error);
+    }
+  };
+  const fetchAssuntos = async () => {
+    try {
+      const data = await getAllAssuntos();
+      setAssuntos(data);
+    } catch (error) {
+      console.error("Erro ao buscar assuntos:", error);
+    }
+  };
+  const fetchQuestoes = async () => {
+    try {
+      const data = await getAllQuestoes();
+      setQuestoes(data);
+    } catch (error) {
+      console.error("Erro ao buscar questões:", error);
+    }
+  };
 
  // itens Disciplinas (exemplo estático)
-  const disciplinas = [
+  /*const disciplinas = [
     { id: 1, title: "Matemática" },
     { id: 2, title: "Português" },
     { id: 3, title: "História" },
@@ -29,9 +68,10 @@ export default function Admin() {
     { id: 1, title: "se um triangulo xxxx", assuntoId: 1 },
     { id: 2, title: "qual o futuro do verbo comprar", assuntoId: 2 },
     { id: 3, title: "em que ano o foi declarada a independencia do Brasil", assuntoId: 3 },
-  ];
+  ];*/
 
   const handleSelect = (item) => {
+    if(viewMode === "questoes") return;
     setSelectedItem(item);
     if (viewMode === "disciplinas") {
       setViewMode("assuntos");
@@ -49,8 +89,8 @@ export default function Admin() {
       setViewMode("disciplinas");
     }
     else if (viewMode === "questoes") {
-      const assunto = assuntos.find(a => a.id === (selectedItem?.assuntoId ?? selectedItem?.id));
-      setSelectedItem(assunto ? { id: assunto.disciplinaId } : null);
+      const assunto = assuntos.find(a => a.id === (selectedItem?.id ?? selectedItem?.id));
+      setSelectedItem(assunto ? { id: assunto.disciplina.id } : null);
       setViewMode("assuntos");
     }
     return;
@@ -59,18 +99,20 @@ export default function Admin() {
   const getFilteredItems = () => {
     if (viewMode === "disciplinas") {
       return disciplinas.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item.nome.toLowerCase().includes(search.toLowerCase())
       );
     }
     if (viewMode === "assuntos"){
       return assuntos.filter((item) =>
-        item.disciplinaId === selectedItem?.id &&
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item.disciplina.id === selectedItem?.id &&
+        item.nome.toLowerCase().includes(search.toLowerCase())
       );
     }
+    console.log('item selecionado em getfiltered', selectedItem)
+    console.log('viewmode: ', viewMode)
     return questoes.filter((item) =>
-      item.assuntoId === selectedItem?.id &&
-      item.title.toLowerCase().includes(search.toLowerCase())
+      item.assunto.id === selectedItem?.id &&
+      item.texto.toLowerCase().includes(search.toLowerCase())
     );
   }
 
@@ -95,10 +137,13 @@ export default function Admin() {
           </h1>
           <div className="flex w-full mb-8 items-center gap-2">
           {viewMode !== "disciplinas" && (
-            <button
-              className="px-3 py-2 border border-gray-300 rounded bg-white shadow-sm hover:bg-gray-100"
-              onClick={ handleBack }
-          > Voltar </button>
+            <ArrowLeft
+          size={34}
+          className="flex self-center text-gray-600 cursor-pointer hover:text-gray-800"
+          onClick={ handleBack}
+          />
+            
+          
           )}
           {/* Barra de pesquisa com ícone */}
           <div className="relative w-full mb-8">
@@ -119,8 +164,9 @@ export default function Admin() {
           {/* Lista */}
           <div className="flex flex-col gap-4 w-full">
             {filteredItems.map((item) => (
-                <ListItem key={item.id} title={item.title}
+                <ListItem key={item.id} title={item.nome?item.nome:item.texto}
                  onEdit={() => {
+                    console.log('Editando item:', item);
                     setSelectedEditItem(item);
                     setIsEditOpen(true);
                 }}
@@ -141,11 +187,12 @@ export default function Admin() {
             <EditModal 
                 id={selectedEditItem?.id}
                 isOpen={isEditOpen}
-                title={selectedEditItem?.title}
+                title={selectedEditItem?.nome?selectedEditItem?.nome:selectedEditItem?.texto}
                 viewMode={viewMode}
                 isEditing={selectedEditItem !== null}
                 onClose={() => setIsEditOpen(false)}
                 onCancel={() => setIsEditOpen(false)}
+                parentId={selectedItem?.id}
             />
             )}
           </div>
